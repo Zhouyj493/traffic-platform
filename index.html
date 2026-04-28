@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- 
+  AI辅助生成：DeepSeek-R1-0528, 2026-03-21
+  ECharts图表布局与饼图配置优化 - 容器尺寸适配、饼图图例位置调整
+  -->
+  <meta charset="UTF-8" />
+  <title>总览</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <script src="js/loadChinaMap.js"></script>
+  <style>
+.panel {
+    padding: 4px 6px;
+}
+.panel h2 {
+    font-size: 12px;
+    margin-bottom: 2px;
+}
+    .chart {
+      flex: 1;
+      min-height: 300px;
+    }
+    /* 右侧柱状图单独控制高度，防止超出底部 */
+#map {
+    flex: 1;
+    min-height: 400px;
+}
+#line {
+    flex: 1;
+    min-height: 200px;
+}
+#pie {
+    flex: 1;
+    min-height: 180px;
+}
+#bar {
+    flex: 1;
+    min-height: 200px;
+}
+    .wave-chart {
+      height: 140px;
+    }
+    .info-box {
+      margin-top: 6px;
+      padding: 5px 8px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 6px;
+      text-align: center;
+      font-size: 10px;
+      color: #ffdd88;
+      line-height: 1.4;
+    }
+    .map-legend {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 6px;
+      padding: 5px 8px;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 6px;
+      flex-wrap: wrap;
+    }
+    .map-legend span {
+      color: #fff;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .legend-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 3px;
+    }
+    .legend-line {
+      display: inline-block;
+      width: 12px;
+      height: 2px;
+      margin-right: 3px;
+      vertical-align: middle;
+    }
+  </style>
+  <script type="module" crossorigin src="/traffic-platform/assets/index-BeAzLpIe.js"></script>
+  <link rel="stylesheet" crossorigin href="/traffic-platform/assets/index-DgqTfwjV.css">
+</head>
+<body>
+  <header class="header">
+    <h1 class="title">智慧城市交通全域运行态势可视化指挥平台</h1>
+    <div class="nav">
+      <button class="nav-btn active">总览</button>
+      <button class="nav-btn" onclick="location.href='congestion.html'">拥堵</button>
+      <button class="nav-btn" onclick="location.href='metro.html'">地铁</button>
+      <button class="nav-btn" onclick="location.href='migration.html'">迁徙</button>
+      <button class="nav-btn" onclick="location.href='prediction.html'">预测</button>
+    </div>
+    <div class="time" id="realTime"></div>
+  </header>
+
+  <section class="mainbox">
+    <div class="column">
+      <div class="panel">
+        <h2>📡 实时爬取数据量监控 <span style="font-size:9px; color:#888;">(每秒更新)</span></h2>
+        <div id="waveLeft" class="wave-chart"></div>
+        <div class="info-box" id="crawlTotalInfo">📊 近一小时累计爬取: -- 条<br/>⚡ 本轮爬取: -- 条/秒</div>
+      </div>
+      <div class="panel">
+        <h2>交通运行总览</h2>
+        <div class="index-info">
+          <div><div class="num">87.3%</div><div class="desc">交通健康指数</div></div>
+          <div><div class="num">33.7</div><div class="desc">平均车速(km/h)</div></div>
+          <div><div class="num">1.43</div><div class="desc">拥堵指数</div></div>
+          <div><div class="num">462万</div><div class="desc">客运总量</div></div>
+          <div><div class="num">41.2万</div><div class="desc">在线车辆</div></div>
+          <div><div class="num">9</div><div class="desc">拥堵预警</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>24小时流量趋势</h2>
+        <div class="chart" id="line"></div>
+      </div>
+    </div>
+
+    <div class="column">
+      <div class="panel">
+        <h2>城市交通热力与车流态势</h2>
+        <div class="chart" id="map"></div>
+        <div id="loadingTip" style="position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: #00aaff; padding: 12px 24px; border-radius: 8px; z-index: 20; font-size: 14px; display: none; border: 1px solid #00aaff;">
+            🔄 正在加载实时交通数据...
+        </div>
+        <div class="map-legend">
+          <span><span class="legend-dot" style="background: #ff3300;"></span>高密度(≥80%)</span>
+          <span><span class="legend-dot" style="background: #ffcc00;"></span>中密度(65-80%)</span>
+          <span><span class="legend-dot" style="background: #00cc66;"></span>低密度(&lt;65%)</span>
+          <span><span class="legend-line" style="background: #ff4400;"></span>高密线路</span>
+          <span><span class="legend-line" style="background: #ffaa00;"></span>中密线路</span>
+          <span><span class="legend-line" style="background: #44aaff;"></span>低密线路</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="column">
+      <div class="panel">
+        <h2>📊 核心指标原始数据监控 <span style="font-size:9px; color:#888;">(每秒更新)</span></h2>
+        <div id="waveRight" class="wave-chart"></div>
+        <div class="info-box" id="rawDataInfo">📈 拥堵:-- | 车速:-- | 车流:-- | 客运:--</div>
+      </div>
+      <div class="panel">
+        <h2>出行方式占比</h2>
+        <div class="chart" id="pie"></div>
+      </div>
+      <div class="panel">
+        <h2>拥堵城市TOP8</h2>
+        <div class="chart" id="bar"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 天地图官方审图号声明 -->
+  <div style="position: fixed; bottom: 5px; right: 10px; font-size: 10px; color: #888; background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 4px; z-index: 9999; pointer-events: none;">
+      地图数据来源：天地图 审图号：GS（2024）0650号
+  </div>
+</body>
+</html>
